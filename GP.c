@@ -10,11 +10,6 @@
 
 #include "GP.h"
 
-#define DIR_UP 0
-#define DIR_DOWN 1
-#define DIR_LEFT 2
-#define DIR_RIGHT 3
-
 unsigned char GPblank[54] = {
 	0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -25,15 +20,13 @@ unsigned char GPblank[54] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-
-
-struct usb_dev_handle *initPanel(unsigned int devnum) {
-	struct usb_bus *bus;
-	struct usb_bus *busses;
-	struct usb_bus *GPbus;
-	struct usb_device *dev;
-	struct usb_device *GPdevice = NULL;
-	struct usb_dev_handle *GPhandle = NULL;
+struct usb_dev_handle* initPanel(unsigned int devnum) {
+	struct usb_bus* bus;
+	struct usb_bus* busses;
+	struct usb_bus* GPbus;
+	struct usb_device* dev;
+	struct usb_device* GPdevice = NULL;
+	struct usb_dev_handle* GPhandle = NULL;
 	//Initialize libusb and have it scan for devices
 	usb_init();
 	usb_find_busses();
@@ -66,19 +59,19 @@ struct usb_dev_handle *initPanel(unsigned int devnum) {
 	return GPhandle;
 }
 
-void writePanel(struct usb_dev_handle *dev, struct GPpacket *packet) {
+void writePanel(struct usb_dev_handle* dev, struct GPpacket* packet) {
 	//Saw this in the bitstream, but doesn't seem to be needed.
 	//usb_interrupt_write(dev, 0x81, NULL, 0, 1000);
 	//usb_interrupt_read(dev, 0x81, NULL, 0, 1000);
-	usb_interrupt_write(dev, 0x02, (char *)packet, 54, 1000);
+	usb_interrupt_write(dev, 0x02, (char*)packet, 54, 1000);
 	usb_interrupt_read(dev, 0x02, NULL, 0, 1000);
 }
 
-struct GPpacket *makePacket() {
-	struct GPpacket *packet = NULL;
+struct GPpacket* makePacket() {
+	struct GPpacket* packet = (struct GPpacket*)malloc(sizeof(struct GPpacket));
+	if(packet == NULL)
+    return NULL;
 
-	packet = (struct GPpacket *)malloc(sizeof(struct GPpacket));
-	if(packet == NULL) return NULL;
 	memcpy(packet->header, GPblank, 54);
 	return(packet);
 }
@@ -112,8 +105,9 @@ void swap16bytes(unsigned short int *array) {
 }
 
 void pset(unsigned short int* array, unsigned int x, unsigned int y) {
-	array[y&15] |= 1 << ((x&15)^BIT3); //single on bit moved to the position modulo 16, byte swapped.
+	array[y & 15] |= 1 << ((x & 15) ^ BIT3); // single on bit moved to the position modulo 16, byte swapped.
 }
+
 /*
 inline void pset(unsigned short int *array, unsigned int x, unsigned int y) {
 	if(x > 15) return;
@@ -121,16 +115,17 @@ inline void pset(unsigned short int *array, unsigned int x, unsigned int y) {
 	array[y&15] |= 1 << ((x&15)^BIT3); //single on bit moved to the position modulo 16, byte swapped.
 }
 */
-inline void pclear(unsigned short int *array, unsigned int x, unsigned int y) {
-	array[y&15] &= ~(1 << ((x&15)^BIT3)); //single on bit moved to the position modulo 16, byte swapped and inverted
+
+inline void pclear(unsigned short int* array, unsigned int x, unsigned int y) {
+	array[y & 15] &= ~(1 << ((x & 15) ^ BIT3)); //single on bit moved to the position modulo 16, byte swapped and inverted
 }
 
-inline void ptoggle(unsigned short int *array, unsigned int x, unsigned int y) {
-	array[y&15] ^= 1 << ((x&15)^BIT3); //single on bit moved to the position modulo 16, byte swapped.
+inline void ptoggle(unsigned short int* array, unsigned int x, unsigned int y) {
+	array[y & 15] ^= 1 << ((x & 15) ^ BIT3); //single on bit moved to the position modulo 16, byte swapped.
 }
 
-inline int pget(unsigned short int *array, unsigned int x, unsigned int y) {
-	return(array[y&15] & (1 << ((x&15)^BIT3)));
+inline int pget(unsigned short int* array, unsigned int x, unsigned int y) {
+	return (array[y & 15] & (1 << ((x & 15) ^ BIT3)));
 }
 
 void clearPacket(struct GPpacket *packet) {
@@ -208,16 +203,22 @@ void drawLine(int x1, int y1, int x2, int y2, unsigned short int *array) {
 	}
 }
 
-void drawRay(int sx, int sy, int length, double angle, unsigned short int *array) {
+void drawRay(int sx, int sy, int length, double angle, unsigned short int* array) {
 	int i, px, py;
-	if(length < 1) return;
+
+	if(length < 1)
+    return;
+
 	double x = sin(angle);
 	double y = cos(angle);
+
 	for(i = 0; i < length; i++) {
 		px = floor(x * i) + sx;
 		py = floor(y * i) + sy;
+
 		if(px >= 0 && px <= 15 && py >= 0 && py <= 15) {
 			pset(array, px, py);
 		}
 	}
 }
+
