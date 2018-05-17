@@ -25,7 +25,7 @@ struct GPpacket *makePacket();
 void clearPanel(struct usb_dev_handle *dev);
 void closePanel(struct usb_dev_handle *dev);
 void swap16bytes(unsigned short int *array);
-// inline void pset(unsigned short int *array, unsigned int x, unsigned int y);
+void pset(unsigned short int* array, unsigned int x, unsigned int y);
 // inline void pclear(unsigned short int *array, unsigned int x, unsigned int y);
 // inline void ptoggle(unsigned short int *array, unsigned int x, unsigned int y);
 // inline int pget(unsigned short int *array, unsigned int x, unsigned int y);

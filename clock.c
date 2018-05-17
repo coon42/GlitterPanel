@@ -11,6 +11,9 @@
 void cleanup(int param);
 
 int main(int argc, char **argv) {
+  (void)argc;
+  (void)argv;
+
 	unsigned int i, running = 1;
 	double x, y;
 	struct usb_dev_handle *GPhandle;
